@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="photoview-release-1.2.4-">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/AndroidAlbum-master/build/intermediates/exploded-aar/photoview-release-1.2.4/jars/classes.jar!/" />
+      <root url="file://$PROJECT_DIR$/AndroidAlbum-master/build/intermediates/exploded-aar/photoview-release-1.2.4/res" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
