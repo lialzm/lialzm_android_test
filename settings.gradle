@@ -1,1 +1,1 @@
-include ':app', ':AndroidAlbum-master', ':AndroidUtils-master', ':logger'
+include ':app',  ':logger', ':myedittext', ':myresources'
