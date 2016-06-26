@@ -10,9 +10,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:progressDrawable="@drawable/seekbar_style"
-        android:thumb="@drawable/bar_btn" />
+        android:thumb="@drawable/bar_btn"
+        android:visibility="gone" />
 
     <com.lialzm.myresources.view.RotationSwitch
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"></com.lialzm.myresources.view.RotationSwitch>
+        android:layout_height="wrap_content" />
 </RelativeLayout>
