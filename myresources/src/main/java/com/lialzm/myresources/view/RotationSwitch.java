@@ -63,8 +63,22 @@ public class RotationSwitch extends View {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-
-        setMeasuredDimension(thumbBitmap.getWidth(), thumbBitmap.getHeight());
+        //判断宽高模式
+        int widthMode = MeasureSpec.getMode(widthMeasureSpec);
+        int heightMode = MeasureSpec.getMode(heightMeasureSpec);
+        int height;
+        int width;
+        if (widthMode == MeasureSpec.EXACTLY) {
+            width = MeasureSpec.getSize(widthMeasureSpec);
+        } else {
+            width = thumbBitmap.getWidth();
+        }
+        if (heightMode == MeasureSpec.EXACTLY) {
+            height = MeasureSpec.getSize(heightMeasureSpec);
+        } else {
+            height = thumbBitmap.getHeight();
+        }
+        setMeasuredDimension(width, height);
 //        setMeasuredDimension(dp2px(100), dp2px(100));
     }
 
@@ -80,6 +94,12 @@ public class RotationSwitch extends View {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         canvas.drawBitmap(thumbBitmap, matrix, paint);
+    }
+
+    OnAngleListen onAngleListen;
+
+    public void setOnAngleListen(OnAngleListen onAngleListen) {
+        this.onAngleListen=onAngleListen;
     }
 
     float startx = 0;//开始转动的点
@@ -104,7 +124,7 @@ public class RotationSwitch extends View {
         int left = getLeft();
         int top = getTop();
         //圆心
-        float centerX =getWidth() / 2.0f;
+        float centerX = getWidth() / 2.0f;
         float centerY = getHeight() / 2.0f;
         //半径
         float radius = getHeight() / 2.0f;
@@ -139,6 +159,8 @@ public class RotationSwitch extends View {
                         matrix.postRotate(-angle, getWidth() / 2.0f, getHeight() / 2.0f);
                     }
                     invalidate();
+                    currentPosition+=angle;
+                    onAngleListen.angle(angle);
                 }
                 startx = endX;
                 starty = endY;
@@ -157,5 +179,8 @@ public class RotationSwitch extends View {
         return (float) Math.atan2(-y1 + centerY, x1 - centerX);
     }
 
+    interface OnAngleListen {
+        void angle(Float angle);
+    }
 
 }
