@@ -14,8 +14,6 @@ import android.view.View;
 
 import com.lialzm.myresources.R;
 
-import java.util.logging.Logger;
-
 /**
  * 旋转开关
  * 1.开始位置
@@ -28,14 +26,33 @@ public class RotationSwitch extends View {
     private Bitmap thumbBitmap;
     private Paint paint = new Paint();
     private boolean isTouchState = false; //触摸状态
-    private float currentPosition; // 当前开关位置
-    private int maxPosition; // 开关滑动最大位置
-
+    private int maxAngle = 360; // 开关滑动最大位置
+    private int startAngle = 0;//起始角度
+    private float angleSum = 0;//记录旋转角度和
 
     public RotationSwitch(Context context) {
         super(context);
         initBitmap();
     }
+
+    /**
+     * 设置最大可旋转角度
+     *
+     * @param maxAngle
+     */
+    public void setMaxAngle(int maxAngle) {
+        this.maxAngle = maxAngle;
+    }
+
+    /**
+     * 设置起始角度
+     *
+     * @param startAngle
+     */
+    public void setStartAngle(int startAngle) {
+        this.startAngle = startAngle;
+    }
+
 
     public RotationSwitch(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -51,7 +68,8 @@ public class RotationSwitch extends View {
     }
 
     private void initBitmap() {
-        thumbBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.rotation_thumb);
+        thumbBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.rotation_thumb1);
+        matrix.postRotate(startAngle, thumbBitmap.getWidth() / 2.0f, thumbBitmap.getHeight() / 2.0f);
     }
 
     /**
@@ -78,6 +96,7 @@ public class RotationSwitch extends View {
         } else {
             height = thumbBitmap.getHeight();
         }
+        matrix.setScale(Float.valueOf(width) / thumbBitmap.getWidth(), Float.valueOf(height) / thumbBitmap.getHeight());
         setMeasuredDimension(width, height);
 //        setMeasuredDimension(dp2px(100), dp2px(100));
     }
@@ -93,13 +112,14 @@ public class RotationSwitch extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        Log.d("find", "onDraw:height " + canvas.getHeight() + ",width" + canvas.getWidth());
         canvas.drawBitmap(thumbBitmap, matrix, paint);
     }
 
     OnAngleListen onAngleListen;
 
     public void setOnAngleListen(OnAngleListen onAngleListen) {
-        this.onAngleListen=onAngleListen;
+        this.onAngleListen = onAngleListen;
     }
 
     float startx = 0;//开始转动的点
@@ -115,7 +135,7 @@ public class RotationSwitch extends View {
      */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-
+        Log.d("find", "onTouchEvent: ");
         //获取按钮中心位置
 //        int[] location = new int[2];
 //        this.getLocationOnScreen(location);
@@ -142,6 +162,7 @@ public class RotationSwitch extends View {
                 break;
             //难点:转动的方向,角度
             case MotionEvent.ACTION_MOVE:
+
                 float endX = event.getX();
                 float endY = event.getY();
                 float c = (float) Math.sqrt(Math.pow(Math.abs(endY - starty), 2) + Math.pow(Math.abs(endX - startx), 2));
@@ -149,18 +170,22 @@ public class RotationSwitch extends View {
                 angle = (float) (angle * (180 / Math.PI));
 
                 if (!Float.isNaN(angle)) {
-                    Log.d("find", "startx==" + startx + ",starty==" + starty);
-                    Log.d("find", "endX==" + endX + ",endY==" + endY);
-                    Log.d("find", "angle(endX, endY, centerX, centerY)==" + angle(endX, endY, centerX, centerY));
-                    Log.d("find", "angle(startx, starty, centerX, centerY)==" + angle(startx, starty, centerX, centerY));
                     if (angle(endX, endY, centerX, centerY) < angle(startx, starty, centerX, centerY)) {//顺时针
-                        matrix.postRotate(angle, getWidth() / 2.0f, getHeight() / 2.0f);
                     } else {
-                        matrix.postRotate(-angle, getWidth() / 2.0f, getHeight() / 2.0f);
+                        angle = -angle;
+                    }
+                    angleSum += angle;
+                    Log.d("find", "onTouchEvent: angle=="+angleSum);
+                    if (angleSum > maxAngle) {
+                        angleSum=maxAngle;
+                        break;
+                    }
+                    matrix.postRotate(angle, centerX, centerY);
+                    if (onAngleListen != null) {
+                        onAngleListen.angle(angleSum);
                     }
                     invalidate();
-                    currentPosition+=angle;
-                    onAngleListen.angle(angle);
+
                 }
                 startx = endX;
                 starty = endY;
